@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:meet_room/bloc/calendar_bloc.dart';
+import 'package:meet_room/blocs/room_bloc/calendar_bloc.dart';
+import 'package:meet_room/blocs/room_bloc/calendar_event.dart';
 import 'package:meet_room/models/event_data_source.dart';
-import 'package:meet_room/pages/event_viewing_page.dart';
+import 'package:meet_room/models/event_model.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 class TasksWidget extends StatelessWidget {
-  const TasksWidget({Key? key}) : super(key: key);
+  final DateTime selectedDate;
+  const TasksWidget(this.selectedDate, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,11 +21,11 @@ class TasksWidget extends StatelessWidget {
         color: Colors.white,
       )),
       child: SfCalendar(
-        view: CalendarView.timelineDay,
+        view: CalendarView.day,
         viewHeaderHeight: 50,
         cellBorderColor: Colors.black,
         dataSource: EventDataSource(_bloc.state.events),
-        initialDisplayDate: _bloc.state.selectedDate,
+        initialDisplayDate: selectedDate,
         appointmentBuilder: appointmentBuilder,
         headerHeight: 0,
         todayHighlightColor: Colors.greenAccent,
@@ -31,9 +33,13 @@ class TasksWidget extends StatelessWidget {
           color: Colors.black.withOpacity(0.3),
         ),
         onTap: (details) {
-          final event = details.appointments!.first;
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => EventViewingPage(event: event)));
+          //print(_bloc.state.events.indexOf(details.appointments![0]));
+          final Event? selectedEvent = details.appointments?.first;
+          if (selectedEvent != null) {
+            context
+                .read<CalendarBloc>()
+                .add(GoToViewingPageEvent(selectedEvent));
+          }
         },
       ),
     );
@@ -43,7 +49,7 @@ class TasksWidget extends StatelessWidget {
     BuildContext context,
     CalendarAppointmentDetails details,
   ) {
-    final event = details.appointments.first;
+    final Event selectedEvent = details.appointments.first;
     return Container(
       width: details.bounds.width,
       height: details.bounds.height,
@@ -53,7 +59,7 @@ class TasksWidget extends StatelessWidget {
       ),
       child: Center(
         child: Text(
-          event.title,
+          selectedEvent.title,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
