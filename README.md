@@ -1,16 +1,14 @@
-# meet_room
+Колесников Евгений
 
-A new Flutter project.
+Тестовое задание Mobile (Flutter)
 
-## Getting Started
+В приложении используется архитектура BLoC с помощью библиотеки flutter_bloc 8.0.1.
 
-This project is a starting point for a Flutter application.
+После запуска приложения, открывается страница авторизации (список пользователей сохранём локально).
+"Test1": "12345",
+"Test2": "abcde",
+"Test3": "123abcd"
+На основной странице приложения (HomePage) выводится месячный календарь, можно добавить событие нажав на кнопку снизу(+), если не выбрана комната, выводятся события во всех комнатах. При добавлении события так же можно убрать участников из списка свайпом влево. Под числами календаря точками выводятся добавленные события(...). При длительном нажатии на число в календаре всплывает почасовая шкала представления выбранного дня с входящими в этот день событиями(если события в этот день имеются). При нажатии на событие, осуществляется переход на страницу детального просмотра события с возможностью удаления этого события.
+Переключения комнат осуществляется нажатием на название комнаты в верхнем меню приложения, удалить комнату можно свайпом влево, при этом удаляются все события в этой комнате за всё время.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Приложение тестировалось на эмуляторе Pixel 3 XL.
