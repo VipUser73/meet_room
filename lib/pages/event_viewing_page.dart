@@ -27,7 +27,8 @@ class EventViewingPage extends StatelessWidget {
             leading: CloseButton(
               onPressed: () {
                 context.read<CalendarBloc>().add(LoadingCalendarEvent());
-                Navigator.of(context).pop();
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => const HomePage()));
               },
             ),
             actions: _buildViewingActions(context, state.selectedEvent!),

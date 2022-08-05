@@ -7,6 +7,7 @@ import 'package:meet_room/blocs/room_bloc/calendar_event.dart';
 import 'package:meet_room/blocs/room_bloc/calendar_state.dart';
 import 'package:meet_room/models/event_model.dart';
 import 'package:meet_room/models/utils.dart';
+import 'package:meet_room/pages/home_page.dart';
 import 'package:time_range/time_range.dart';
 
 class AddEventPage extends StatelessWidget {
@@ -26,7 +27,9 @@ class AddEventPage extends StatelessWidget {
         onTap: () => FocusScope.of(context).unfocus(),
         child: Scaffold(
           appBar: AppBar(
+              centerTitle: true,
               backgroundColor: Colors.green.shade700,
+              title: _appBarTitle(context, state.listRooms[state.indexRoom!]),
               leading: CloseButton(
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -35,8 +38,13 @@ class AddEventPage extends StatelessWidget {
               ),
               actions: [
                 IconButton(
-                  onPressed: () => saveForm(context, dateNow, _timeRange,
-                      _titleController.text, state.loginsList),
+                  onPressed: () => saveForm(
+                      context,
+                      dateNow,
+                      _timeRange,
+                      _titleController.text,
+                      state.loginsList,
+                      state.listRooms[state.indexRoom!]),
                   icon: const Icon(Icons.done),
                 ),
               ]),
@@ -67,6 +75,16 @@ class AddEventPage extends StatelessWidget {
         ),
       );
     });
+  }
+
+  Widget _appBarTitle(BuildContext context, String room) {
+    return Container(
+        width: 170,
+        height: 34,
+        decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
+            border: Border.all(width: 2, color: Colors.green.shade800)),
+        child: Center(child: Text(room)));
   }
 
   Widget titleField(BuildContext context) {
@@ -202,12 +220,13 @@ class AddEventPage extends StatelessWidget {
       DateTime dateNow,
       TimeRangeResult? timeRange,
       String text,
-      List<String> usernamesList) async {
+      List<String> usernamesList,
+      String room) async {
     final bool isValid = _formKey.currentState!.validate();
     if (isValid && timeRange != null) {
       final saveEvent = Event(
         title: text,
-        room: '',
+        room: room,
         start: dateNow.add(Duration(
             hours: timeRange.start.hour, minutes: timeRange.start.minute)),
         finish: dateNow.add(
@@ -215,7 +234,8 @@ class AddEventPage extends StatelessWidget {
         members: usernamesList.toString(),
       );
       context.read<CalendarBloc>().add(SaveFormEvent(saveEvent));
-      Navigator.of(context).pop();
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => const HomePage()));
     }
   }
 }

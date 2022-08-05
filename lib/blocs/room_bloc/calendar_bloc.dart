@@ -11,6 +11,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     on<PickDateEvent>(_pickDateEvent);
     on<PickTimeEditEvent>(_pickTimeEditEvent);
     on<AddEventEvent>(_addEventEvent);
+    on<SaveRoomEvent>(_saveRoomEvent);
     on<GoToViewingPageEvent>(_goToViewingPageEvent);
     on<GoToBackEvent>(_goToBackEvent);
     on<GoToEditingPageEvent>(_goToEditingPageEvent);
@@ -18,14 +19,16 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     on<SaveFormEvent>(_saveFormEvent);
     on<UpdateFormEvent>(_updateFormEvent);
     on<DeleteEventEvent>(_deleteEvent);
+    on<DeleteRoomEvent>(_deleteRoom);
   }
   final LocalRepository _storageRepository;
   String name = '';
+  int? indexRoom;
 
   void _loadingCalendarEvent(
       LoadingCalendarEvent event, Emitter<CalendarState> emit) async {
-    await _storageRepository.readRooms();
     await _storageRepository.getEventsList();
+    await _storageRepository.readRooms();
     emit(LoadedCalendarState(
         events: _storageRepository.eventsFromDB,
         listRooms: _storageRepository.listRooms,
@@ -39,31 +42,43 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
 
   void _selectedRoomEvent(
       SelectedRoomEvent event, Emitter<CalendarState> emit) async {
+    indexRoom = event.indexRoom;
     emit(LoadedCalendarState(
         events: _storageRepository.eventsFromDB,
         listRooms: _storageRepository.listRooms,
-        indexRoom: event.indexRoom));
+        indexRoom: indexRoom));
+  }
+
+  void _saveRoomEvent(SaveRoomEvent event, Emitter<CalendarState> emit) async {
+    await _storageRepository.addRoom(event.nameRoom);
+    emit(LoadedRoomsState(listRooms: _storageRepository.listRooms));
   }
 
   void _addEventEvent(AddEventEvent event, Emitter<CalendarState> emit) async {
     await _storageRepository.readLogins();
-    emit(AddEventState(loginsList: _storageRepository.loginsList));
+    emit(AddEventState(
+        loginsList: _storageRepository.loginsList,
+        listRooms: _storageRepository.listRooms,
+        indexRoom: indexRoom));
   }
 
   void _deleteMemberEvent(
       DeleteMemberEvent event, Emitter<CalendarState> emit) async {
     _storageRepository.deleteMemberEvent(event.index);
-    //emit(AddEventState(loginsList: _storageRepository.loginsList));
   }
 
   void _pickDateEvent(PickDateEvent event, Emitter<CalendarState> emit) async {
     emit(PickLoadedState(
-        dateNow: event.dateNow, loginsList: _storageRepository.loginsList));
+        dateNow: event.dateNow,
+        loginsList: _storageRepository.loginsList,
+        listRooms: _storageRepository.listRooms,
+        indexRoom: indexRoom));
   }
 
   void _pickTimeEditEvent(
       PickTimeEditEvent event, Emitter<CalendarState> emit) async {
-    emit(PickLoadedEditState(selectedEvent: event.selectedEvent));
+    emit(PickLoadedEditState(
+        selectedEvent: event.selectedEvent, indexRoom: indexRoom));
   }
 
   void _saveFormEvent(SaveFormEvent event, Emitter<CalendarState> emit) async {
@@ -79,6 +94,11 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   void _deleteEvent(DeleteEventEvent event, Emitter<CalendarState> emit) async {
     await _storageRepository.deleteEvent(event.title);
     add(LoadingCalendarEvent());
+  }
+
+  void _deleteRoom(DeleteRoomEvent event, Emitter<CalendarState> emit) async {
+    await _storageRepository.deleteRoom(event.room);
+    emit(LoadedRoomsState(listRooms: _storageRepository.listRooms));
   }
 
   void _goToViewingPageEvent(

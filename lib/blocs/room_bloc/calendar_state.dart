@@ -35,18 +35,30 @@ class LoadedCalendarState extends CalendarState {
 }
 
 class PickLoadedState extends CalendarState {
-  PickLoadedState({DateTime? dateNow, required List<String> loginsList})
-      : super(dateNow: dateNow, loginsList: loginsList);
+  PickLoadedState(
+      {DateTime? dateNow,
+      required List<String> loginsList,
+      required List<String> listRooms,
+      required int? indexRoom})
+      : super(
+            dateNow: dateNow,
+            loginsList: loginsList,
+            listRooms: listRooms,
+            indexRoom: indexRoom);
 }
 
 class PickLoadedEditState extends CalendarState {
-  PickLoadedEditState({final Event? selectedEvent})
-      : super(selectedEvent: selectedEvent);
+  PickLoadedEditState({final Event? selectedEvent, required int? indexRoom})
+      : super(selectedEvent: selectedEvent, indexRoom: indexRoom);
 }
 
 class AddEventState extends CalendarState {
-  AddEventState({required List<String> loginsList})
-      : super(loginsList: loginsList);
+  AddEventState(
+      {required List<String> loginsList,
+      required List<String> listRooms,
+      required int? indexRoom})
+      : super(
+            loginsList: loginsList, listRooms: listRooms, indexRoom: indexRoom);
 }
 
 class GoToBackState extends CalendarState {

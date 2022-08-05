@@ -11,7 +11,15 @@ class PickDateEvent extends CalendarEvent {
 
 class GoToViewingRoomsEvent extends CalendarEvent {}
 
-class AddRoomEvent extends CalendarEvent {}
+class SaveRoomEvent extends CalendarEvent {
+  final String nameRoom;
+  SaveRoomEvent(this.nameRoom);
+}
+
+class DeleteRoomEvent extends CalendarEvent {
+  final String room;
+  DeleteRoomEvent(this.room);
+}
 
 class SelectedRoomEvent extends CalendarEvent {
   final int indexRoom;

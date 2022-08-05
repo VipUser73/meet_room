@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meet_room/blocs/room_bloc/calendar_bloc.dart';
 import 'package:meet_room/blocs/room_bloc/calendar_event.dart';
 import 'package:meet_room/blocs/room_bloc/calendar_state.dart';
+import 'package:meet_room/pages/add_room_page.dart';
+import 'package:meet_room/pages/home_page.dart';
 
 class RoomsViewingPage extends StatelessWidget {
   const RoomsViewingPage({Key? key}) : super(key: key);
@@ -23,22 +25,27 @@ class RoomsViewingPage extends StatelessWidget {
             leading: CloseButton(
               onPressed: () {
                 context.read<CalendarBloc>().add(LoadingCalendarEvent());
-                Navigator.of(context).pop();
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => const HomePage()));
               },
             ),
           ),
-          floatingActionButton: FloatingActionButton(
-              child: const Icon(Icons.add, color: Colors.white),
-              backgroundColor: Colors.green.shade800,
-              onPressed: () {
-                context.read<CalendarBloc>().add(AddRoomEvent());
-              }),
+          floatingActionButton: _addButton(context),
           body: _listRooms(context, state.listRooms),
         );
       } else {
         return const Scaffold(body: Center(child: CircularProgressIndicator()));
       }
     });
+  }
+
+  Widget _addButton(BuildContext context) {
+    return FloatingActionButton(
+      child: const Icon(Icons.add, color: Colors.white),
+      backgroundColor: Colors.green.shade800,
+      onPressed: () => Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => AddRoomPage())),
+    );
   }
 
   Widget _listRooms(BuildContext context, List<String> listRooms) {
@@ -55,7 +62,11 @@ class RoomsViewingPage extends StatelessWidget {
           return Dismissible(
             key: UniqueKey(),
             direction: DismissDirection.endToStart,
-            onDismissed: (_) {},
+            onDismissed: (_) {
+              context
+                  .read<CalendarBloc>()
+                  .add(DeleteRoomEvent(listRooms[index]));
+            },
             background: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
@@ -69,8 +80,9 @@ class RoomsViewingPage extends StatelessWidget {
               height: 50,
               child: GestureDetector(
                 onTap: () {
-                  Navigator.of(context).pop();
                   context.read<CalendarBloc>().add(SelectedRoomEvent(index));
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const HomePage()));
                 },
                 child: Card(
                   margin: EdgeInsets.zero,

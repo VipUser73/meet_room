@@ -23,9 +23,17 @@ class LocalRepository {
   }
 
   Future<List<String>> readRooms() async {
-    final String _loadedRooms = await rootBundle.loadString('assets/rooms.txt');
-    listRooms = _loadedRooms.split('\n');
+    listRooms = await _dbProvider.getRooms();
     return listRooms;
+  }
+
+  Future<void> addRoom(String nameRoom) async {
+    await _dbProvider.addRoom(nameRoom);
+    await readRooms();
+  }
+
+  Future<void> saveForm(Event seveEvent) async {
+    await _dbProvider.addEvent(seveEvent);
   }
 
   Future<List<Event>> getEventsList() async {
@@ -38,15 +46,16 @@ class LocalRepository {
     return loginsList;
   }
 
-  Future<void> saveForm(Event seveEvent) async {
-    _dbProvider.addEvent(seveEvent);
-  }
-
   Future<void> updateForm(Event seveEvent, String name) async {
     _dbProvider.updateForm(seveEvent, name);
   }
 
   Future<void> deleteEvent(String _title) async {
     await _dbProvider.deleteEvent(_title);
+  }
+
+  Future<void> deleteRoom(String _room) async {
+    await _dbProvider.deleteRoom(_room);
+    await readRooms();
   }
 }

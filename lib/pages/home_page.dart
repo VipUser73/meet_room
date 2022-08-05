@@ -4,6 +4,7 @@ import 'package:meet_room/blocs/room_bloc/calendar_bloc.dart';
 import 'package:meet_room/blocs/room_bloc/calendar_event.dart';
 import 'package:meet_room/blocs/room_bloc/calendar_state.dart';
 import 'package:meet_room/models/event_data_source.dart';
+import 'package:meet_room/models/event_model.dart';
 import 'package:meet_room/pages/add_event_page.dart';
 import 'package:meet_room/pages/event_viewing_page.dart';
 import 'package:meet_room/pages/rooms_viewing_page.dart';
@@ -32,6 +33,13 @@ class HomePage extends StatelessWidget {
           }
         },
         builder: (context, state) {
+          List<Event> _events = state.events;
+          if (state.indexRoom != null) {
+            _events = state.events
+                .where((element) =>
+                    element.room == state.listRooms[state.indexRoom!])
+                .toList();
+          }
           if (state is LoadedCalendarState) {
             return Scaffold(
               appBar: AppBar(
@@ -51,7 +59,7 @@ class HomePage extends StatelessWidget {
                         BoxDecoration(border: Border.all(color: Colors.white)),
                     cellBorderColor: Colors.black,
                     todayHighlightColor: Colors.green,
-                    dataSource: EventDataSource(state.events),
+                    dataSource: EventDataSource(_events),
                     initialDisplayDate: DateTime.now(),
                     onLongPress: (CalendarLongPressDetails details) {
                       showModalBottomSheet(
@@ -62,12 +70,7 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
               ),
-              floatingActionButton: FloatingActionButton(
-                  child: const Icon(Icons.add, color: Colors.white),
-                  backgroundColor: Colors.green.shade800,
-                  onPressed: () {
-                    context.read<CalendarBloc>().add(AddEventEvent());
-                  }),
+              floatingActionButton: _addButton(context, state.indexRoom),
             );
           } else {
             return const Scaffold(
@@ -87,12 +90,25 @@ class HomePage extends StatelessWidget {
         context.read<CalendarBloc>().add(GoToViewingRoomsEvent());
       },
       child: Container(
-          width: 100,
+          width: 170,
           height: 34,
           decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(Radius.circular(10)),
               border: Border.all(width: 2, color: Colors.green.shade800)),
           child: Center(child: Text(title))),
     );
+  }
+
+  Widget _addButton(BuildContext context, int? index) {
+    return FloatingActionButton(
+        child: const Icon(Icons.add, color: Colors.white),
+        backgroundColor: Colors.green.shade800,
+        onPressed: () {
+          if (index != null) {
+            context.read<CalendarBloc>().add(AddEventEvent());
+          } else {
+            context.read<CalendarBloc>().add(GoToViewingRoomsEvent());
+          }
+        });
   }
 }
